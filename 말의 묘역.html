@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>말의 묘역 - 실시간 투표</title>
+    
+    <!-- 폰트 로드 -->
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================================
+           1. 기본 설정 및 폰트
+           ========================================= */
+        :root {
+            --text-color: #e0e0e0;
+            --accent-color: #8b0000;
+            --agree-color: #2e7d32;    /* 찬성 초록색 */
+            --disagree-color: #c62828; /* 반대 빨간색 */
+        }
+
+        @font-face {
+            font-family: 'DXTypeB-KSCpc-EUC-H';
+            src: local('DXTypeB-KSCpc-EUC-H'), local('DXTypeB');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-image: url('https://i.imgur.com/DYUUZoK.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'DXTypeB-KSCpc-EUC-H', 'DXTypeB', 'Gowun Batang', serif;
+            color: var(--text-color);
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* =========================================
+           2. 상단 헤더
+           ========================================= */
+        header {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            pointer-events: none;
+            width: 90%;
+            display: flex;
+            justify-content: center;
+        }
+
+        header img {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+        }
+
+        /* =========================================
+           3. 묘비 스타일
+           ========================================= */
+        .graveyard-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .tombstone {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+            transition: box-shadow 0.3s ease, filter 0.3s ease;
+            touch-action: none;
+        }
+
+        .tombstone:active {
+            cursor: grabbing;
+            z-index: 1000 !important;
+        }
+
+        .tombstone img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.8));
+            pointer-events: none;
+        }
+
+        .tombstone-text {
+            position: absolute;
+            color: #000000; 
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.8); 
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            white-space: nowrap;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .tombstone[data-img-idx="0"] .tombstone-text { top: 50%; left: 0%; }
+        .tombstone[data-img-idx="1"] .tombstone-text { top: 60%; left: 0%; }
+        .tombstone[data-img-idx="2"] .tombstone-text { top: 50%; left: 0%; }
+        .tombstone[data-img-idx="3"] .tombstone-text { top: 63%; left: 0%; }
+        .tombstone[data-img-idx="4"] .tombstone-text { top: 50%; left: 0%; }
+        .tombstone[data-img-idx="5"] .tombstone-text { top: 50%; left: 0%; }
+
+        .highlighted { animation: halo-pulse 1.5s infinite alternate; }
+        @keyframes halo-pulse {
+            from { filter: drop-shadow(0 0 5px var(--accent-color)); }
+            to { filter: drop-shadow(0 0 20px var(--accent-color)); }
+        }
+
+        /* [수정 완료] 새로 생긴 묘비에 회색 빛 애니메이션 적용 */
+        .just-born img {
+            animation: holy-light 5s ease-out forwards;
+        }
+
+        @keyframes holy-light {
+            0% {
+                /* 밝은 회색(은색) 후광, 밝기 조절 */
+                filter: brightness(2.0) drop-shadow(0 0 30px #e0e0e0);
+                transform: scale(1.05);
+            }
+            80% {
+                /* 빛이 서서히 줄어듦 */
+                filter: brightness(1.1) drop-shadow(0 0 10px #e0e0e0);
+            }
+            100% {
+                /* 원래 상태로 복귀 */
+                filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.8));
+                transform: scale(1);
+            }
+        }
+
+        /* =========================================
+           4. UI 요소 (검색, 버튼)
+           ========================================= */
+        .search-container {
+            position: fixed;
+            bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .search-input {
+            width: 300px; padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--accent-color);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--text-color);
+            font-family: inherit; font-size: 16px;
+            text-align: center; outline: none;
+            transition: background-color 0.3s;
+        }
+        .search-input:focus { background-color: rgba(0, 0, 0, 0.9); }
+
+        /* ▼▼▼ .add-btn 관련 코드를 이걸로 싹 덮어쓰세요 ▼▼▼ */
+        .add-btn {
+            /* 1. 위치 고정 (우측 하단) */
+            position: fixed;
+            bottom: -40px; 
+            right: -60px;
+            
+            /* 2. 버튼 크기 (이미지 크기에 맞춰 조절하세요) */
+            width: 250px;   
+            height: 250px; 
+            
+            /* 3. 배경, 테두리, 원형 모양 모두 제거 -> 투명하게 */
+            background: none;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: 4; /* 그림자도 제거 (원하면 남겨도 됨) */
+            
+            /* 4. 기타 필수 설정 */
+            z-index: 100;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 이미지 스타일 */
+        .add-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 이미지 비율 유지하며 꽉 채움 */
+            display: block;
+            filter: drop-shadow(0 4px 5px rgba(0,0,0,0.5)); /* 이미지 자체에 그림자 효과 */
+        }
+
+        /* 마우스 올렸을 때 살짝 커짐 */
+        .add-btn:hover {
+            transform: scale(1.1);
+            background: none; /* 배경색 안 생기게 방지 */
+        }
+        .add-btn:hover img {
+            /* x좌표, y좌표, 번짐정도, 색상 */
+            /* 빨간색(#ff0000) 빛이 15px 만큼 퍼짐 */
+            filter: drop-shadow(0 0 15px #ff0000); 
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            justify-content: center; align-items: center;
+        }
+        /* ▼▼▼ .modal 스타일을 이걸로 교체하세요 ▼▼▼ */
+        .modal {
+            /* 1. 배경 이미지 설정 */
+            background-image: url('https://i.imgur.com/ALod4q5.png'); 
+            background-size: contain; /* 이미지가 잘리지 않고 다 보이게 */
+            background-repeat: no-repeat;
+            background-position: center;
+            
+            /* 2. 기존의 네모난 배경과 테두리 제거 */
+            background-color: transparent; 
+            border: none;
+            box-shadow: none; /* 이미지 자체 그림자가 없다면 filter: drop-shadow(...) 추가 가능 */
+
+            /* 3. 크기 설정 (이미지 비율에 맞춰서 조절 필요) */
+            width: 350px;   /* 너비 */
+            height: 450px;  /* 높이 */
+            
+            /* 4. 내용 정렬 (글자와 입력창을 중앙에 배치) */
+            padding: 40px; /* 테두리 안쪽 여백 (글자가 이미지 밖으로 안 나가게 조절) */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            text-align: center;
+        }
+
+        /* 💡 팁: 배경이 이미지가 되면 입력창(input)도 어울리게 투명하게 바꾸면 좋습니다 */
+        .modal-input {
+            width: 80%;
+            margin-bottom: 10px;
+            padding: 8px;
+            /* 배경을 반투명 검정으로 */
+            background: rgba(0, 0, 0, 0.5); 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 4px;
+        }
+
+        /* =========================================
+           5. 투표 버튼 스타일
+           ========================================= */
+        .vote-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 25px;
+            width: 100%;
+        }
+        .vote-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .vote-btn {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .vote-btn:active { transform: scale(0.9); }
+        
+        .vote-btn.agree { background-color: var(--agree-color); }
+        .vote-btn.agree:hover { box-shadow: 0 0 15px var(--agree-color); }
+        
+        .vote-btn.disagree { background-color: var(--disagree-color); }
+        .vote-btn.disagree:hover { box-shadow: 0 0 15px var(--disagree-color); }
+
+        .vote-count {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .vote-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .vote-btn.disabled {
+            background-color: #555 !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body>
+
+
+
+    <div id="graveyard" class="graveyard-container"></div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="찾고 싶은 사어를 검색 하시오.">
+    </div>
+
+    <button class="add-btn" onclick="openAddModal()" title="사어 매장">
+        <!-- '이미지주소' 부분에 원하시는 이미지 링크를 넣으세요 -->
+        <img src="https://i.imgur.com/4qaFM5W.png" alt="매장">
+    </button>
+
+    <!-- 정보 및 투표 모달 -->
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal">
+            <span class="modal-close" onclick="closeModal('infoModal')">&times;</span>
+            <h2 id="modalTitle">사어</h2>
+            <p id="modalDesc">뜻</p>
+            
+            <div class="vote-container">
+                <div class="vote-btn-wrapper">
+                    <button class="vote-btn agree" id="btnAgree" onclick="castVote('agree')">👍</button>
+                    <span class="vote-count" id="countAgree">0</span>
+                    <span class="vote-label">사어 찬성</span>
+                </div>
+                <div class="vote-btn-wrapper">
+                    <button class="vote-btn disagree" id="btnDisagree" onclick="castVote('disagree')">👎</button>
+                    <span class="vote-count" id="countDisagree">0</span>
+                    <span class="vote-label">사어 반대</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 추가 모달 -->
+    <div id="addModal" class="modal-overlay">
+        <div class="modal">
+            <span class="modal-close" onclick="closeModal('addModal')">&times;</span>
+            <h2>사어 매장하기</h2>
+            <input type="text" id="newWordInput" class="modal-input" placeholder="사어 (단어)">
+            <input type="text" id="newDescInput" class="modal-input" placeholder="사어의 뜻">
+            <button class="modal-btn action" onclick="addNewWord()">매장</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK 로드 -->
+    <script type="module">
+        // ▼▼▼ 아래 2줄을 복사해서 기존 import 부분을 덮어쓰세요 (remove가 추가됨) ▼▼▼
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set, update, runTransaction, remove } 
+               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            // ... (아래는 건드리지 마세요)
+  apiKey: "AIzaSyCeBlDbjcxzatGi2pC5omaZiUyuqHt0-I4",
+  authDomain: "dead-language-5dc67.firebaseapp.com",
+  databaseURL: "https://dead-language-5dc67-default-rtdb.firebaseio.com",
+  
+  projectId: "dead-language-5dc67",
+  storageBucket: "dead-language-5dc67.firebasestorage.app",
+  messagingSenderId: "361907393714",
+  appId: "1:361907393714:web:311807684225b2955f25ab",
+  measurementId: "G-30GNR2SRQZ"
+};
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db, 'graveyard');
+
+        // 전역 변수 설정
+        window.currentOpenedTombstoneId = null; // 현재 열린 묘비 ID
+        let placedTombstones = [];
+        const container = document.getElementById('graveyard');
+
+        // 묘비 이미지 타입
+        const TOMBSTONE_TYPES = [
+            { idx: 0, url: "https://imgur.com/UnIAnaM.png", width: 90, height: 140 },
+            { idx: 1, url: "https://imgur.com/xaJwCW1.png", width: 120, height: 90 },
+            { idx: 2, url: "https://imgur.com/47GtJjO.png", width: 80, height: 150 },
+            { idx: 3, url: "https://imgur.com/XcihaGS.png", width: 100, height: 150 },
+            { idx: 4, url: "https://imgur.com/kMtI5MA.png", width: 92, height: 140 },
+            { idx: 5, url: "https://imgur.com/4GCdtpS.png", width: 110, height: 152 }
+        ];
+
+        // 기본 단어 (DB가 비었을 때 초기화용)
+        const DEFAULT_WORDS = [
+            { word: "영포티", desc: "젊은 감각을 유지하려는 40대" },
+            { word: "~충", desc: "특정 대상을 벌레에 비유" },
+            { word: "김여사", desc: "운전 미숙 여성 비하" },
+            { word: "딸배", desc: "배달원 비하 명칭" },
+            { word: "짱깨", desc: "중국인의 복장을 뜻하는 '장궤'에서 유래되었으나, 현재는 중국인을 낮잡아 부르 말" },
+            { word: "잼민이", desc: "무개념한 어린이라는 멸시의 의미" },
+            { word: "누칼협", desc: "누가 칼 들고 협박함?의 줄임말. 타인의 고통이나 피해를 개인의 선택 탓으로 돌리는 냉소적 표현." },
+            { word: "알빠노", desc: "타인의 불행이나 사회적 문제에 대해 극도의 무관심을 표현함." },
+            { word: "-무새", desc: "상대의 주장을 논리적으로 반박하지 않고 '앵무새'라며 대화를 차단함." },
+            { word: "진지충", desc: "진지한 논의를 '노잼(재미없음)'으로 치부함." },
+        ];
+
+        // =========================================
+        // 1. 데이터 로드 (실시간 리스너)
+        // =========================================
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            container.innerHTML = ''; // 화면 초기화
+            placedTombstones = [];
+
+            if (data) {
+                // DB에 데이터가 있으면 렌더링
+                Object.keys(data).forEach(key => {
+                    const item = data[key];
+                    createTombstone(key, item, false);
+                });
+            } else {
+                // DB가 비어있으면 기본 데이터 추가 (최초 1회 실행됨)
+                DEFAULT_WORDS.forEach(w => {
+                    const newRef = push(dbRef);
+                    set(newRef, {
+                        word: w.word,
+                        desc: w.desc,
+                        typeIdx: Math.floor(Math.random() * TOMBSTONE_TYPES.length),
+                        x: Math.random() * (window.innerWidth - 100),
+                        y: Math.random() * (window.innerHeight - 200) + 100,
+                        agree: 0,
+                        disagree: 0
+                    });
+                });
+            }
+
+            // 모달이 열려있다면 투표 수 실시간 업데이트
+            if (window.currentOpenedTombstoneId && data && data[window.currentOpenedTombstoneId]) {
+                const currentData = data[window.currentOpenedTombstoneId];
+                document.getElementById('countAgree').innerText = currentData.agree || 0;
+                document.getElementById('countDisagree').innerText = currentData.disagree || 0;
+            } else if (window.currentOpenedTombstoneId && (!data || !data[window.currentOpenedTombstoneId])) {
+                // 보고 있던 묘비가 사라진 경우 모달 닫기
+                closeModal('infoModal');
+            }
+        });
+
+        // =========================================
+        // 2. 묘비 생성 및 렌더링
+        // =========================================
+        function createTombstone(id, data, isNew) {
+            const el = document.createElement('div');
+            el.classList.add('tombstone');
+            
+            let typeIdx = data.typeIdx !== undefined ? parseInt(data.typeIdx) : 0;
+            const type = TOMBSTONE_TYPES.find(t => t.idx === typeIdx) || TOMBSTONE_TYPES[0];
+
+            // 화면 밖으로 나가는 것 방지 (간단 보정)
+            let posX = Math.min(Math.max(0, data.x), window.innerWidth - type.width);
+            let posY = Math.min(Math.max(0, data.y), window.innerHeight - type.height);
+
+            const tombData = {
+                id: id,
+                element: el,
+                word: data.word,
+                desc: data.desc,
+                x: posX,
+                y: posY,
+                w: type.width,
+                h: type.height,
+                agree: data.agree || 0,
+                disagree: data.disagree || 0
+            };
+            placedTombstones.push(tombData);
+
+            el.style.width = type.width + 'px';
+            el.style.height = type.height + 'px';
+            el.style.left = posX + 'px';
+            el.style.top = posY + 'px';
+            el.dataset.imgIdx = type.idx; 
+            
+            // ▼▼▼ 새로 넣을 코드 (시간 계산 로직) ▼▼▼
+            const now = Date.now();
+            const createdTime = data.timestamp || 0; // 저장된 시간 가져오기
+
+            // 만들어진 지 5000ms(5초)가 안 지났으면 빛나게 하기
+            if (now - createdTime < 5000) {
+                el.classList.add('just-born');
+                
+                // 남은 시간만큼만 켜뒀다가 클래스 제거
+                setTimeout(() => {
+                    el.classList.remove('just-born');
+                }, 5000 - (now - createdTime));
+            }
+
+            el.innerHTML = `
+                <img src="${type.url}" alt="tombstone">
+                <div class="tombstone-text">${data.word}</div>
+            `;
+
+            // 이벤트 바인딩
+            el.onmousedown = (e) => startDrag(e, tombData);
+            el.ontouchstart = (e) => startDrag(e, tombData);
+            el.onclick = () => { if(!el.isDragging) showInfo(tombData); };
+            el.oncontextmenu = (e) => {
+                e.preventDefault(); // 브라우저 기본 메뉴(새 탭 열기 등) 차단
+                
+                // 진짜 지울 건지 물어보기
+                if (confirm(`정말로 '${data.word}' 사어를 살리시겠습니까?`)) {
+                    remove(ref(db, `graveyard/${id}`))
+                        .then(() => {
+                            // 삭제 성공! (화면은 onValue가 알아서 갱신해줌)
+                        })
+                        .catch((err) => {
+                            alert("살리기 실패: " + err.message);
+                        });
+                }
+            };
+
+            container.appendChild(el);
+        }
+
+        // =========================================
+        // 3. 드래그 앤 드롭 (좌표 DB 저장)
+        // =========================================
+        let currentDrag = null;
+        let dragOffsetX, dragOffsetY, startX, startY;
+
+        function startDrag(e, tombData) {
+            // ▼▼▼ [새로 추가된 코드] 우클릭(버튼 2)이면 드래그하지 말고 끝내라! ▼▼▼
+            if (e.type === 'mousedown' && e.button !== 0) return;
+
+            if(e.type === 'mousedown') e.preventDefault();
+            
+            currentDrag = tombData;
+            const el = tombData.element;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            dragOffsetX = clientX - el.getBoundingClientRect().left;
+            dragOffsetY = clientY - el.getBoundingClientRect().top;
+            startX = clientX;
+            startY = clientY;
+            el.isDragging = false;
+
+            if (e.type === 'touchstart') {
+                document.addEventListener('touchmove', onDrag, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+            } else {
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+        }
+
+        function onDrag(e) {
+            if (!currentDrag) return;
+            if(e.cancelable) e.preventDefault();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            if (Math.abs(clientX - startX) > 5 || Math.abs(clientY - startY) > 5) {
+                currentDrag.element.isDragging = true;
+            }
+
+            let x = clientX - dragOffsetX;
+            let y = clientY - dragOffsetY;
+            
+            // 화면 밖 제한
+            x = Math.max(0, Math.min(window.innerWidth - currentDrag.w, x));
+            y = Math.max(0, Math.min(window.innerHeight - currentDrag.h, y));
+
+            currentDrag.element.style.left = x + 'px';
+            currentDrag.element.style.top = y + 'px';
+            currentDrag.x = x;
+            currentDrag.y = y;
+        }
+
+        function stopDrag() {
+            if (currentDrag && currentDrag.element.isDragging) {
+                // 드래그가 끝났을 때만 DB에 좌표 업데이트
+                update(ref(db, `graveyard/${currentDrag.id}`), {
+                    x: currentDrag.x,
+                    y: currentDrag.y
+                });
+            }
+            currentDrag = null;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+
+        // =========================================
+        // 4. 모달 및 투표 기능
+        // =========================================
+        
+        // window 객체에 할당 (HTML onclick에서 호출하기 위함)
+        // ▼▼▼ 기존 showInfo 함수를 지우고 이 코드로 덮어쓰세요 ▼▼▼
+        window.showInfo = function(data) {
+            window.currentOpenedTombstoneId = data.id;
+            const modal = document.getElementById('infoModal');
+            document.getElementById('modalTitle').innerText = data.word;
+            document.getElementById('modalDesc').innerText = data.desc;
+            document.getElementById('countAgree').innerText = data.agree;
+            document.getElementById('countDisagree').innerText = data.disagree;
+            
+            // 투표 기록 확인
+            const votedList = JSON.parse(localStorage.getItem('votedTombstones') || '{}');
+            const btnAgree = document.getElementById('btnAgree');
+            const btnDisagree = document.getElementById('btnDisagree');
+
+            // 이미 투표했다면 버튼 비활성화 스타일 적용
+            if (votedList[data.id]) {
+                btnAgree.classList.add('disabled');
+                btnDisagree.classList.add('disabled');
+            } else {
+                btnAgree.classList.remove('disabled');
+                btnDisagree.classList.remove('disabled');
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        // ▼▼▼ 기존 castVote 함수를 지우고 이 코드로 덮어쓰세요 ▼▼▼
+        window.castVote = function(type) {
+            if (!window.currentOpenedTombstoneId) return;
+            
+            const id = window.currentOpenedTombstoneId;
+            
+            // 1. 이미 투표했는지 내 브라우저(로컬 스토리지)에서 확인
+            const votedList = JSON.parse(localStorage.getItem('votedTombstones') || '{}');
+            
+            if (votedList[id]) {
+                alert("이 묘비에는 이미 투표하셨습니다.");
+                return; // 투표 중단
+            }
+
+            // 2. Firebase에 투표 반영
+            const itemRef = ref(db, `graveyard/${id}`);
+            runTransaction(itemRef, (post) => {
+                if (post) {
+                    if (type === 'agree') {
+                        post.agree = (post.agree || 0) + 1;
+                    } else {
+                        post.disagree = (post.disagree || 0) + 1;
+                    }
+                }
+                return post;
+            });
+            
+            // 3. "나 투표했음" 기록 저장
+            votedList[id] = true;
+            localStorage.setItem('votedTombstones', JSON.stringify(votedList));
+
+            // 4. 버튼 비활성화 처리 (시각적 효과)
+            document.getElementById('btnAgree').classList.add('disabled');
+            document.getElementById('btnDisagree').classList.add('disabled');
+            
+            // 버튼 눌림 애니메이션
+            const btnId = type === 'agree' ? 'btnAgree' : 'btnDisagree';
+            const btn = document.getElementById(btnId);
+            btn.style.transform = "scale(1.2)";
+            setTimeout(() => btn.style.transform = "scale(1)", 200);
+        }
+
+        window.addNewWord = function() {
+            const word = document.getElementById('newWordInput').value.trim();
+            const desc = document.getElementById('newDescInput').value.trim();
+            if (!word || !desc) { alert("단어와 뜻을 모두 입력해주세요."); return; }
+            
+            const newRef = push(dbRef);
+            set(newRef, {
+                word: word,
+                desc: desc,
+                typeIdx: Math.floor(Math.random() * TOMBSTONE_TYPES.length),
+                x: Math.random() * (window.innerWidth - 100),
+                y: Math.random() * (window.innerHeight - 200) + 100,
+                agree: 0,
+                
+                // ▼▼▼ [중요] 여기에 쉼표(,)가 꼭 있어야 합니다! ▼▼▼
+                disagree: 0, 
+                
+                timestamp: Date.now() 
+            });
+
+            closeModal('addModal');
+        }
+
+        window.openAddModal = function() {
+            document.getElementById('newWordInput').value = "";
+            document.getElementById('newDescInput').value = "";
+            document.getElementById('addModal').style.display = 'flex';
+            document.getElementById('newWordInput').focus();
+        }
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'infoModal') {
+                window.currentOpenedTombstoneId = null;
+            }
+        }
+        
+        // 검색 필터
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const val = this.value.trim();
+            placedTombstones.forEach(t => t.element.classList.remove('highlighted'));
+            if (val === "") return;
+            placedTombstones.forEach(t => {
+                if (t.word.includes(val)) t.element.classList.add('highlighted');
+            });
+        });
+
+        // 모달 외부 클릭 닫기
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                window.closeModal(e.target.id);
+            }
+        }
+    </script>
+</body>
+</html>
