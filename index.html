@@ -24,13 +24,14 @@
             src: local('DXTypeB-KSCpc-EUC-H'), local('DXTypeB');
         }
 
-        body {
+        body
+         {
             margin: 0;
             padding: 0;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            background-image: url('https://i.imgur.com/DYUUZoK.png');
+            background-image: url('https://i.imgur.com/YvvUntE.jpeg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -429,13 +430,292 @@
             margin: 0;
             z-index: 10;
         }
+        /* ==================================================
+           [신규] 햄버거 버튼 및 전체 목록 스타일
+           ================================================== */
+        
+        /* 1. 우측 상단 햄버거 버튼 */
+        .hamburger-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000; /* 헤더보다 위에 */
+            
+            background: transparent; /* 반투명 배경 */
+            color: #000;
+            border: none;
+            
+            font-size: 40px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
+        .hamburger-btn:hover {
+            /* 배경색이 생기지 않게 transparent로 변경하거나 삭제 */
+            background: transparent; 
+            /* 테두리도 안 생기게 */
+            border: none;
+            /* 크기만 커지게 */
+            transform: scale(1.2); 
+            /* 글자색을 바꾸고 싶다면 */
+            color: #8b0000; 
+        }
+
+        /* 2. 전체 목록 팝업창 (기존 모달과 다르게 넓게 씀) */
+        /* ▼▼▼ [수정됨] 사어 목록 창을 이미지로 변경 ▼▼▼ */
+        .list-modal-content {
+            /* 1. 배경 이미지 설정 */
+            background-image: url('https://i.imgur.com/SosNIbu.png.png'); 
+            background-size: contain; /* 이미지가 잘리지 않고 다 보이게 */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent; /* 기존 검은 배경 제거 */
+            
+            /* 2. 테두리와 그림자 제거 (이미지에 포함되어 있다면) */
+            border: none;
+            box-shadow: none; 
+
+            /* 3. 크기 설정 (이미지 비율에 맞춰 조절 필요) */
+            width: 100%;
+            max-width: 710px; /* 너무 커지지 않게 제한 */
+            height: 100%;      /* 화면 높이의 80% */
+            
+            /* 4. 내부 여백 (글자가 이미지 밖으로 나가지 않게 조절 필수!) */
+            /* 순서대로: 위, 오른쪽, 아래, 왼쪽 */
+            padding: 80px 60px 100px 60px; 
+            
+            /* 5. 정렬 설정 (그대로 유지) */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* (선택사항) 목록 제목 스타일 수정 - 이미지 배경색에 맞춰 글자색 변경 */
+        .list-modal-content h2 {
+            text-align: center;
+            color: #ffffff; /* 배경이 밝으면 #000000(검정)으로 바꾸세요 */
+            margin-bottom: 0px;
+            margin-top: 75px;
+            padding-bottom: 10px;
+        }
+
+        /* 3. 목록 스크롤 영역 */
+        .word-list-container {
+            /* 1. 크기 및 스크롤 설정 */
+            flex: none; 
+            height: 650px !important;  /* 배경 그림에 맞춘 높이 */
+            width: 100%;    /* 가로 꽉 채우기 */
+            overflow-y: auto; /* 스크롤바 */
+            
+            /* 2. 위치 미세 조정 */
+            margin-top: 10px;
+            margin-bottom: 10px;
+            
+            /* 3. [핵심] 내용물 가운데 정렬을 위한 Flexbox 설정 */
+            display: flex;
+            flex-direction: column; /* 세로로 나열 */
+            align-items: center;    /* ★가로 기준 가운데 정렬★ */
+            
+            /* 4. 스크롤바 때문에 생기는 오른쪽 여백 제거 (중앙 정렬 방해 요소) */
+            padding-top: 5px;   /* 위에서부터 얼마나 내릴지 (Y축) */
+            padding-left: 70px;  /* 왼쪽벽에서 얼마나 밀지 (X축) */
+            padding-right: 0px;  /* 오른쪽 여백 */
+        }
+
+        /* ==================================================
+           [수정] 목록 아이템(단어 카드) 디자인 및 크기 조절
+           ================================================== */
+
+        .word-item {
+            /* 1. 가로 너비 조절 (가장 중요!) */
+            width: 90%;       /* 100%는 꽉 차고, 80%~90%는 여백이 생김 */
+            max-width: 500px; /* 아무리 넓어져도 이 이상은 안 커짐 */
+            
+            /* 2. 위치 정렬 (가운데 정렬) */
+            /* 너비를 줄였을 때 카드가 가운데 오게 하려면 아래 줄 필수 */
+            margin-left: auto;
+            margin-right: auto;
+            
+            /* 3. 카드끼리의 세로 간격 */
+            margin-bottom: 13px; /* 이 숫자를 늘리면 카드 사이가 멀어짐 */
+            
+            /* 4. 카드 내부 여백 (글자가 테두리에 안 붙게) */
+            padding: 17px; 
+            
+            /* 5. 디자인 (배경색, 테두리 등) */
+            background: rgba(255, 255, 255, 0.1); /* 반투명 배경 */
+            border-radius: 10px;                  /* 둥근 모서리 */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* 테두리 선 */
+            
+            /* 6. 텍스트 정렬 */
+            text-align: left; /* left: 왼쪽 정렬, center: 가운데 정렬 */
+            
+            /* 마우스 올렸을 때 부드럽게 변하는 효과 */
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        /* 마우스 올렸을 때 효과 */
+        .word-item:hover {
+            background: rgba(255, 255, 255, 0.2); /* 배경 밝아짐 */
+            border-color: var(--accent-color);    /* 테두리 색 바뀜 */
+            transform: scale(1.02);               /* 살짝 커짐 (싫으면 이 줄 삭제) */
+        }
+
+        /* 제목 글자 스타일 */
+        .word-item-title {
+            font-size: 22px;        /* 글자 크기 */
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;    /* 설명과의 간격 */
+        }
+
+        /* 뜻(설명) 글자 스타일 */
+        .word-item-desc {
+            font-size: 15px;
+            color: #ddd;
+            line-height: 1.4;       /* 줄 간격 */
+        }
+
+        /* 찬성/반대 통계 스타일 */
+        .word-item-stats {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 14px;       /* 설명과의 간격 */
+            text-align: right;      /* 오른쪽 구석에 배치 */
+        }
+
+        /* 5. 닫기 버튼 */
+        .close-list {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .close-list:hover { color: #fff; }
+        
+        /* 스크롤바 예쁘게 */
+        /* ▼▼▼ 목록(스크롤) 영역 크기 및 위치 상세 조절 ▼▼▼ */
+        .word-list-container {
+            /* 1. 자동 크기 조절 끄기 (높이를 내 맘대로 정하기 위해 필수!) */
+            flex: none; 
+            
+            /* 2. 세로 높이 조절 (가장 중요!) */
+            /* 이 숫자를 늘리거나 줄여서 배경 그림 칸에 맞추세요 */
+            height: 700px; 
+            
+            /* 3. 가로 너비 조절 */
+            width: 80%;  /* 100%면 꽉 채우고, 80% 등으로 줄일 수 있습니다 */
+            
+            /* 4. 위치 미세 조정 (여백) */
+            margin-top: 20px;    /* 제목과 목록 사이 간격 */
+            margin-bottom: 0px;  /* 아래쪽 여백 */
+            
+            /* 5. 스크롤 설정 (이건 그대로 두세요) */
+            overflow-y: auto;
+        }
+        /* ▼▼▼ 스크롤바 디자인 수정 (목록 창) ▼▼▼ */
+        
+        /* 1. 스크롤바 전체 너비 */
+        .word-list-container::-webkit-scrollbar {
+            width: 10px;  /* 스크롤바 두께 (숫자가 클수록 두꺼워짐) */
+        }
+
+        /* 2. 스크롤바 뒷배경 (트랙) */
+        .word-list-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3); /* 반투명한 검은색 */
+            border-radius: 5px; /* 둥근 모서리 */
+            margin: 10px 0; /* 위아래 여백 */
+        }
+
+        /* 3. 스크롤바 막대 (손잡이) */
+        .word-list-container::-webkit-scrollbar-thumb {
+            background: #888; /* 막대 색상 (회색) */
+            border-radius: 5px; /* 둥근 모서리 */
+            border: 2px solid transparent; /* 여백을 주기 위한 투명 테두리 */
+            background-clip: content-box; /* 테두리 안쪽만 색칠 */
+        }
+
+        /* 4. 마우스 올렸을 때 막대 색상 변경 */
+        .word-list-container::-webkit-scrollbar-thumb:hover {
+            background: #999; /* 마우스 올리면 붉은색(테마색)으로 변함 */
+        }
+        /* ▼▼▼ [신규] 음악 버튼 스타일 ▼▼▼ */
+        .music-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px; /* 좌측 상단 배치 */
+            z-index: 1000;
+            
+            background: transparent;
+            border: none;
+            
+            font-size: 30px; 
+            cursor: pointer;
+            transition: 0.3s;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8); /* 배경에 묻히지 않게 그림자 */
+            
+            /* 3. 정렬 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            /* (중요) 너비/높이 설정 해제하거나 글자 크기에 맞춤 */
+            width: auto;
+            height: auto;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.2);   /* 커지기만 함 */
+            background: transparent; /* 배경색 안 생기게 */
+            border: none;
+        }
+
+        /* 재생 중일 때 (빙글빙글 + 초록색 빛) */
+        .music-on {
+            animation: spin 3s linear infinite;
+            
+            /* 테두리 대신 초록색 후광 효과 */
+            text-shadow: 0 0 20px #00ff00; 
+            border: none;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
 
     </style>
 </head>
 <body>
+    <!-- ▼▼▼ [1] 배경음악 오디오 태그 (화면엔 안 보임) ▼▼▼ -->
+    <!-- 'bgm.mp3' 부분을 실제 파일 경로로 바꾸세요 -->
+    <audio id="bgmAudio" loop autoplay>
+        <source src="https://ready-lavender-85r54zt9sd-bfd2asc2a3.edgeone.dev/말의%20묘역.mp3" type="audio/mp3">
+    </audio>
 
+    <!-- ▼▼▼ [2] 음악 ON/OFF 버튼 (좌측 상단) ▼▼▼ -->
+    <button class="music-btn" onclick="toggleMusic()">🔇</button>
 
+    <!-- ▼▼▼ [1] 우측 상단 햄버거 버튼 추가 ▼▼▼ -->
+    <button class="hamburger-btn" onclick="openListModal()">☰</button>
 
+    <!-- ▼▼▼ [2] 모든 사어 보기 목록 창 (모달) 추가 ▼▼▼ -->
+    <div id="listModal" class="modal-overlay">
+        <div class="list-modal-content">
+            <span class="close-list" onclick="closeListModal()">&times;</span>
+            <h2>매장 된 사어 목록</h2>
+            <div id="wordListContainer" class="word-list-container">
+                <!-- 자바스크립트가 여기에 목록을 채워넣습니다 -->
+            </div>
+        </div>
+    </div>
     <div id="graveyard" class="graveyard-container"></div>
 
     <div class="search-container">
@@ -481,33 +761,32 @@
     </div>
 
     <!-- Firebase SDK 로드 -->
+    <!-- Firebase SDK 로드 -->
     <script type="module">
-        // ▼▼▼ 아래 2줄을 복사해서 기존 import 부분을 덮어쓰세요 (remove가 추가됨) ▼▼▼
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, set, update, runTransaction, remove } 
                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
-            // ... (아래는 건드리지 마세요)
-  apiKey: "AIzaSyCeBlDbjcxzatGi2pC5omaZiUyuqHt0-I4",
-  authDomain: "dead-language-5dc67.firebaseapp.com",
-  databaseURL: "https://dead-language-5dc67-default-rtdb.firebaseio.com",
-  
-  projectId: "dead-language-5dc67",
-  storageBucket: "dead-language-5dc67.firebasestorage.app",
-  messagingSenderId: "361907393714",
-  appId: "1:361907393714:web:311807684225b2955f25ab",
-  measurementId: "G-30GNR2SRQZ"
-};
-
+            apiKey: "AIzaSyCeBlDbjcxzatGi2pC5omaZiUyuqHt0-I4",
+            authDomain: "dead-language-5dc67.firebaseapp.com",
+            databaseURL: "https://dead-language-5dc67-default-rtdb.firebaseio.com",
+            projectId: "dead-language-5dc67",
+            storageBucket: "dead-language-5dc67.firebasestorage.app",
+            messagingSenderId: "361907393714",
+            appId: "1:361907393714:web:311807684225b2955f25ab",
+            measurementId: "G-30GNR2SRQZ"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const dbRef = ref(db, 'graveyard');
 
         // 전역 변수 설정
-        window.currentOpenedTombstoneId = null; // 현재 열린 묘비 ID
+        window.currentOpenedTombstoneId = null; 
         let placedTombstones = [];
+        let allGraveyardData = null; // 전체 데이터 저장용
+        
         const container = document.getElementById('graveyard');
 
         // 묘비 이미지 타입
@@ -526,12 +805,12 @@
             { word: "~충", desc: "특정 대상을 벌레에 비유" },
             { word: "김여사", desc: "운전 미숙 여성 비하" },
             { word: "딸배", desc: "배달원 비하 명칭" },
-            { word: "짱깨", desc: "중국인의 복장을 뜻하는 '장궤'에서 유래되었으나, 현재는 중국인을 낮잡아 부르 말" },
-            { word: "잼민이", desc: "무개념한 어린이라는 멸시의 의미" },
-            { word: "누칼협", desc: "누가 칼 들고 협박함?의 줄임말. 타인의 고통이나 피해를 개인의 선택 탓으로 돌리는 냉소적 표현." },
-            { word: "알빠노", desc: "타인의 불행이나 사회적 문제에 대해 극도의 무관심을 표현함." },
-            { word: "-무새", desc: "상대의 주장을 논리적으로 반박하지 않고 '앵무새'라며 대화를 차단함." },
-            { word: "진지충", desc: "진지한 논의를 '노잼(재미없음)'으로 치부함." },
+            { word: "짱깨", desc: "중국인 비하 명칭" },
+            { word: "잼민이", desc: "무개념한 어린아이" },
+            { word: "누칼협", desc: "누가 칼 들고 협박함?" },
+            { word: "알빠노", desc: "내 알 바 아님" },
+            { word: "-무새", desc: "앵무새처럼 같은 말 반복" },
+            { word: "진지충", desc: "진지한 사람 비하" }
         ];
 
         // =========================================
@@ -539,6 +818,8 @@
         // =========================================
         onValue(dbRef, (snapshot) => {
             const data = snapshot.val();
+            allGraveyardData = data; // 데이터 저장
+            
             container.innerHTML = ''; // 화면 초기화
             placedTombstones = [];
 
@@ -549,7 +830,7 @@
                     createTombstone(key, item, false);
                 });
             } else {
-                // DB가 비어있으면 기본 데이터 추가 (최초 1회 실행됨)
+                // DB가 비어있으면 기본 데이터 추가
                 DEFAULT_WORDS.forEach(w => {
                     const newRef = push(dbRef);
                     set(newRef, {
@@ -559,24 +840,24 @@
                         x: Math.random() * (window.innerWidth - 100),
                         y: Math.random() * (window.innerHeight - 200) + 100,
                         agree: 0,
-                        disagree: 0
+                        disagree: 0,
+                        timestamp: Date.now()
                     });
                 });
             }
 
-            // 모달이 열려있다면 투표 수 실시간 업데이트
+            // 모달 업데이트
             if (window.currentOpenedTombstoneId && data && data[window.currentOpenedTombstoneId]) {
                 const currentData = data[window.currentOpenedTombstoneId];
                 document.getElementById('countAgree').innerText = currentData.agree || 0;
                 document.getElementById('countDisagree').innerText = currentData.disagree || 0;
             } else if (window.currentOpenedTombstoneId && (!data || !data[window.currentOpenedTombstoneId])) {
-                // 보고 있던 묘비가 사라진 경우 모달 닫기
-                closeModal('infoModal');
+                window.closeModal('infoModal');
             }
         });
 
         // =========================================
-        // 2. 묘비 생성 및 렌더링
+        // 2. 묘비 생성 함수
         // =========================================
         function createTombstone(id, data, isNew) {
             const el = document.createElement('div');
@@ -585,7 +866,6 @@
             let typeIdx = data.typeIdx !== undefined ? parseInt(data.typeIdx) : 0;
             const type = TOMBSTONE_TYPES.find(t => t.idx === typeIdx) || TOMBSTONE_TYPES[0];
 
-            // 화면 밖으로 나가는 것 방지 (간단 보정)
             let posX = Math.min(Math.max(0, data.x), window.innerWidth - type.width);
             let posY = Math.min(Math.max(0, data.y), window.innerHeight - type.height);
 
@@ -609,15 +889,11 @@
             el.style.top = posY + 'px';
             el.dataset.imgIdx = type.idx; 
             
-            // ▼▼▼ 새로 넣을 코드 (시간 계산 로직) ▼▼▼
+            // 5초간 빛나는 효과
             const now = Date.now();
-            const createdTime = data.timestamp || 0; // 저장된 시간 가져오기
-
-            // 만들어진 지 5000ms(5초)가 안 지났으면 빛나게 하기
+            const createdTime = data.timestamp || 0;
             if (now - createdTime < 5000) {
                 el.classList.add('just-born');
-                
-                // 남은 시간만큼만 켜뒀다가 클래스 제거
                 setTimeout(() => {
                     el.classList.remove('just-born');
                 }, 5000 - (now - createdTime));
@@ -628,22 +904,16 @@
                 <div class="tombstone-text">${data.word}</div>
             `;
 
-            // 이벤트 바인딩
             el.onmousedown = (e) => startDrag(e, tombData);
             el.ontouchstart = (e) => startDrag(e, tombData);
             el.onclick = () => { if(!el.isDragging) showInfo(tombData); };
+            
+            // 우클릭 삭제 기능
             el.oncontextmenu = (e) => {
-                e.preventDefault(); // 브라우저 기본 메뉴(새 탭 열기 등) 차단
-                
-                // 진짜 지울 건지 물어보기
+                e.preventDefault();
                 if (confirm(`정말로 '${data.word}' 사어를 살리시겠습니까?`)) {
                     remove(ref(db, `graveyard/${id}`))
-                        .then(() => {
-                            // 삭제 성공! (화면은 onValue가 알아서 갱신해줌)
-                        })
-                        .catch((err) => {
-                            alert("살리기 실패: " + err.message);
-                        });
+                        .catch((err) => alert("살리기 실패: " + err.message));
                 }
             };
 
@@ -651,15 +921,13 @@
         }
 
         // =========================================
-        // 3. 드래그 앤 드롭 (좌표 DB 저장)
+        // 3. 드래그 앤 드롭
         // =========================================
         let currentDrag = null;
         let dragOffsetX, dragOffsetY, startX, startY;
 
         function startDrag(e, tombData) {
-            // ▼▼▼ [새로 추가된 코드] 우클릭(버튼 2)이면 드래그하지 말고 끝내라! ▼▼▼
             if (e.type === 'mousedown' && e.button !== 0) return;
-
             if(e.type === 'mousedown') e.preventDefault();
             
             currentDrag = tombData;
@@ -696,7 +964,6 @@
             let x = clientX - dragOffsetX;
             let y = clientY - dragOffsetY;
             
-            // 화면 밖 제한
             x = Math.max(0, Math.min(window.innerWidth - currentDrag.w, x));
             y = Math.max(0, Math.min(window.innerHeight - currentDrag.h, y));
 
@@ -708,7 +975,6 @@
 
         function stopDrag() {
             if (currentDrag && currentDrag.element.isDragging) {
-                // 드래그가 끝났을 때만 DB에 좌표 업데이트
                 update(ref(db, `graveyard/${currentDrag.id}`), {
                     x: currentDrag.x,
                     y: currentDrag.y
@@ -722,11 +988,9 @@
         }
 
         // =========================================
-        // 4. 모달 및 투표 기능
+        // 4. 모달, 투표, 기타 기능 (window 객체에 할당)
         // =========================================
         
-        // window 객체에 할당 (HTML onclick에서 호출하기 위함)
-        // ▼▼▼ 기존 showInfo 함수를 지우고 이 코드로 덮어쓰세요 ▼▼▼
         window.showInfo = function(data) {
             window.currentOpenedTombstoneId = data.id;
             const modal = document.getElementById('infoModal');
@@ -735,12 +999,11 @@
             document.getElementById('countAgree').innerText = data.agree;
             document.getElementById('countDisagree').innerText = data.disagree;
             
-            // 투표 기록 확인
+            // 투표 여부 확인
             const votedList = JSON.parse(localStorage.getItem('votedTombstones') || '{}');
             const btnAgree = document.getElementById('btnAgree');
             const btnDisagree = document.getElementById('btnDisagree');
 
-            // 이미 투표했다면 버튼 비활성화 스타일 적용
             if (votedList[data.id]) {
                 btnAgree.classList.add('disabled');
                 btnDisagree.classList.add('disabled');
@@ -752,46 +1015,29 @@
             modal.style.display = 'flex';
         }
 
-        // ▼▼▼ 기존 castVote 함수를 지우고 이 코드로 덮어쓰세요 ▼▼▼
         window.castVote = function(type) {
             if (!window.currentOpenedTombstoneId) return;
-            
             const id = window.currentOpenedTombstoneId;
-            
-            // 1. 이미 투표했는지 내 브라우저(로컬 스토리지)에서 확인
             const votedList = JSON.parse(localStorage.getItem('votedTombstones') || '{}');
             
             if (votedList[id]) {
-                alert("이 묘비에는 이미 투표하셨습니다.");
-                return; // 투표 중단
+                alert("이미 투표하셨습니다.");
+                return;
             }
 
-            // 2. Firebase에 투표 반영
             const itemRef = ref(db, `graveyard/${id}`);
             runTransaction(itemRef, (post) => {
                 if (post) {
-                    if (type === 'agree') {
-                        post.agree = (post.agree || 0) + 1;
-                    } else {
-                        post.disagree = (post.disagree || 0) + 1;
-                    }
+                    if (type === 'agree') post.agree = (post.agree || 0) + 1;
+                    else post.disagree = (post.disagree || 0) + 1;
                 }
                 return post;
             });
             
-            // 3. "나 투표했음" 기록 저장
             votedList[id] = true;
             localStorage.setItem('votedTombstones', JSON.stringify(votedList));
-
-            // 4. 버튼 비활성화 처리 (시각적 효과)
             document.getElementById('btnAgree').classList.add('disabled');
             document.getElementById('btnDisagree').classList.add('disabled');
-            
-            // 버튼 눌림 애니메이션
-            const btnId = type === 'agree' ? 'btnAgree' : 'btnDisagree';
-            const btn = document.getElementById(btnId);
-            btn.style.transform = "scale(1.2)";
-            setTimeout(() => btn.style.transform = "scale(1)", 200);
         }
 
         window.addNewWord = function() {
@@ -807,14 +1053,11 @@
                 x: Math.random() * (window.innerWidth - 100),
                 y: Math.random() * (window.innerHeight - 200) + 100,
                 agree: 0,
-                
-                // ▼▼▼ [중요] 여기에 쉼표(,)가 꼭 있어야 합니다! ▼▼▼
-                disagree: 0, 
-                
+                disagree: 0,
                 timestamp: Date.now() 
             });
 
-            closeModal('addModal');
+            window.closeModal('addModal');
         }
 
         window.openAddModal = function() {
@@ -831,7 +1074,7 @@
             }
         }
         
-        // 검색 필터
+        // 검색 기능
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('input', function() {
             const val = this.value.trim();
@@ -842,12 +1085,122 @@
             });
         });
 
-        // 모달 외부 클릭 닫기
+        // 모달 닫기 (외부 클릭)
         window.onclick = function(e) {
             if (e.target.classList.contains('modal-overlay')) {
-                window.closeModal(e.target.id);
+                // 클릭된 요소의 ID가 있으면 그 모달을 닫음
+                if(e.target.id) window.closeModal(e.target.id);
             }
         }
+
+        // ▼▼▼ [목록 기능] ▼▼▼
+        window.openListModal = function() {
+            const listModal = document.getElementById('listModal');
+            const listContainer = document.getElementById('wordListContainer');
+            
+            listContainer.innerHTML = '';
+
+            if (!allGraveyardData) {
+                listContainer.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:20px;">등록된 사어가 없습니다.</p>';
+            } else {
+                const dataArray = Object.entries(allGraveyardData).map(([key, value]) => {
+                    return { id: key, ...value };
+                });
+                
+                dataArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                dataArray.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'word-item';
+                    div.innerHTML = `
+                        <div class="word-item-title">${item.word}</div>
+                        <div class="word-item-desc">${item.desc}</div>
+                        <div class="word-item-stats">
+                            찬성 ${item.agree || 0} / 반대 ${item.disagree || 0}
+                        </div>
+                    `;
+                    div.onclick = () => {
+                        window.closeListModal();
+                        const targetTomb = placedTombstones.find(t => t.id === item.id);
+                        if(targetTomb) window.showInfo(targetTomb);
+                        else alert("해당 묘비가 현재 화면에 로드되지 않았습니다.");
+                    };
+                    listContainer.appendChild(div);
+                });
+            }
+            listModal.style.display = 'flex';
+        }
+
+        window.closeListModal = function() {
+            document.getElementById('listModal').style.display = 'none';
+        }
+        // ▼▼▼ [신규] 음악 재생/정지 토글 함수 ▼▼▼
+        window.toggleMusic = function() {
+            const audio = document.getElementById('bgmAudio');
+            const btn = document.querySelector('.music-btn');
+            
+            if (audio.paused) {
+                audio.play(); // 음악 재생
+                btn.innerHTML = "💿"; // 아이콘 변경 (원판)
+                btn.classList.add('music-on'); // 빙글빙글 효과 추가
+            } else {
+                audio.pause(); // 음악 정지
+                btn.innerHTML = "🔇"; // 아이콘 변경 (음소거)
+                btn.classList.remove('music-on'); // 효과 제거
+            }
+        }
+        
+        // (선택사항) 사이트 접속 시 음악 볼륨을 50%로 설정
+        document.getElementById('bgmAudio').volume = 0.5;
+
+        window.onload = function() {
+            const audio = document.getElementById('bgmAudio');
+            const btn = document.querySelector('.music-btn');
+            
+            // 볼륨 설정 (0.0 ~ 1.0)
+            audio.volume = 0.5; 
+
+            // 자동 재생 시도
+            var promise = audio.play();
+
+            if (promise !== undefined) {
+                promise.then(_ => {
+                    // 성공! (아이콘 변경 및 빙글빙글 효과)
+                    btn.innerHTML = "💿";
+                    btn.classList.add('music-on');
+                }).catch(error => {
+                    // 실패! (브라우저 정책) -> 콘솔에만 기록하고 클릭을 기다림
+                    console.log("자동 재생 차단됨. 사용자 클릭 대기 중...");
+                });
+            }
+        };
+
+        // 2. 화면 아무 곳이나 클릭(터치)했을 때 재생 (자동 재생 실패 대비)
+        document.body.addEventListener('click', function() {
+            const audio = document.getElementById('bgmAudio');
+            const btn = document.querySelector('.music-btn');
+            
+            // 음악이 멈춰있는 상태라면 재생
+            if (audio.paused) {
+                audio.play();
+                btn.innerHTML = "💿";
+                btn.classList.add('music-on');
+            }
+        }, { once: true }); // 중요: 한 번만 실행되고 사라짐 (계속 실행되면 음악 껐는데 또 켜질 수 있음)
+
+        // 2. 화면 아무 데나 클릭하면 음악 시작 (자동 재생 실패 대비)
+        document.body.addEventListener('click', function() {
+            const audio = document.getElementById('bgmAudio');
+            const btn = document.querySelector('.music-btn');
+            
+            // 음악이 꺼져있다면 재생
+            if (audio.paused) {
+                audio.play();
+                btn.innerHTML = "💿";
+                btn.classList.add('music-on');
+            }
+        }, { once: true });
+
     </script>
 </body>
 </html>
