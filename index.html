@@ -100,7 +100,7 @@
             color: #000000; 
             text-shadow: 0 0 3px rgba(255, 255, 255, 0.8); 
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
             white-space: nowrap;
             width: 100%;
@@ -168,12 +168,12 @@
         .add-btn {
             /* 1. 위치 고정 (우측 하단) */
             position: fixed;
-            bottom: -40px; 
-            right: -60px;
+            bottom: 30px; 
+            right: 10px;
             
             /* 2. 버튼 크기 (이미지 크기에 맞춰 조절하세요) */
-            width: 250px;   
-            height: 250px; 
+            width: 100px;   
+            height: 100px; 
             
             /* 3. 배경, 테두리, 원형 모양 모두 제거 -> 투명하게 */
             background: none;
@@ -272,15 +272,15 @@
             align-items: center;
         }
         .vote-btn {
-            width: 60px; height: 60px;
-            border-radius: 50%;
+            width: 40px; height: 40px;
+            border-radius: 30%;
             border: 2px solid rgba(255,255,255,0.2);
-            font-size: 24px;
+            font-size: 16px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             display: flex; align-items: center; justify-content: center;
             color: white;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .vote-btn:active { transform: scale(0.9); }
         
@@ -306,6 +306,130 @@
             opacity: 0.6;
             box-shadow: none !important;
         }
+        #addModal .modal {
+            /* 이 숫자를 늘리면 전체 내용이 아래로 내려갑니다 */
+            padding-top: 90px; 
+            /* 이 숫자를 늘리면 전체 내용이 위로 올라갑니다 (아래 여백) */
+            padding-bottom: 40px; 
+        }
+
+        /* 2. '사어 매장하기' 제목 위치 */
+        #addModal h2 {
+            /* 제목을 아래로 밀어내기 */
+            margin-top: 0px; 
+            /* 제목과 입력창 사이 간격 벌리기 */
+            margin-bottom: 30px; 
+        }
+
+        /* 3. 첫 번째 입력창 (단어) 위치 */
+        #newWordInput {
+            /* 위쪽 여백 (제목과 떨어뜨리기) */
+            margin-top: 0px; 
+        }
+
+        /* 4. 두 번째 입력창 (뜻) 위치 */
+        #newDescInput {
+            /* 위쪽 여백 (첫 번째 입력창과 떨어뜨리기) */
+            margin-top: 10px;
+        }
+
+        /* 5. '매장' 버튼 위치 */
+        #addModal .modal-btn {
+            /* 위쪽 여백 (입력창들과 떨어뜨리기) */
+            margin-top: 5px; 
+            
+            /* (선택) 버튼 크기 조절 */
+            width: 60px; 
+        }
+        
+        /* ▼▼▼ [1] 닫기(X) 버튼 : 이건 지우지 말고 놔두거나, 위치 안 맞으면 숫자 조절하세요 ▼▼▼ */
+        .modal-close {
+            position: absolute;
+            top: 180px;   /* 위아래 위치 */
+            right: 25px;  /* 좌우 위치 */
+            font-size: 30px;
+            color: #ffffff;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* ▼▼▼ [2] 팝업창 내용물 위치 (새로운 절대 위치 방식) ▼▼▼ */
+        
+        /* 1. 팝업창(모달) 내부 여백 : 제목과 버튼이 들어갈 자리를 비워줍니다 */
+        #infoModal .modal {
+            padding-top: 120px;     /* 제목이 겹치지 않게 위쪽 공간 확보 */
+            padding-bottom: 100px;  /* 버튼이 겹치지 않게 아래쪽 공간 확보 */
+        }
+        /* ==================================================
+           [최종 통합] 사어 정보(투표) 팝업 위치 및 스타일
+           ================================================== */
+
+        /* 1. 팝업창(모달) 내부 여백 : 내용물이 겹치지 않게 공간 확보 */
+        #infoModal .modal {
+            /* 제목이 들어갈 윗공간 */
+            padding-top: 130px;    
+            /* 버튼이 들어갈 아랫공간 */
+            padding-bottom: 90px; 
+        }
+
+        /* 2. 사어(제목) 위치 조절 */
+        #infoModal #modalTitle {
+            position: absolute;    /* 절대 위치 */
+            
+            /* ▼▼▼ 이 숫자를 바꿔서 위/아래 위치를 잡으세요 ▼▼▼ */
+            top: 250px;            /* 위에서 110px 내려옴 */
+            
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            margin: 0;
+            text-align: center;
+            
+            /* 글자 스타일 */
+            font-size: 36px;       /* 글자 크기 */
+            font-weight: bold;
+            color: #ffffff;           /* 글자색 */
+            letter-spacing: -2px;  /* 자간 */
+            line-height: 1.2;
+            z-index: 10;
+        }
+
+        /* 3. 뜻(설명) 위치 조절 */
+        #infoModal #modalDesc {
+            position: absolute;    /* 절대 위치 */
+            
+            /* ▼▼▼ 이 숫자를 바꿔서 위/아래 위치를 잡으세요 ▼▼▼ */
+            top: 310px;            /* 위에서 170px 내려옴 */
+            
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;            /* 가로폭 */
+            margin: 0;
+            text-align: center;
+            
+            /* 글자 스타일 */
+            font-size: 18px;
+            color: #ffffff;           /* 글자색 */
+            letter-spacing: 0.5px;
+            line-height: 1.6;
+            word-break: keep-all;
+            z-index: 10;
+        }
+
+        /* 4. 투표 버튼(찬성/반대) 위치 조절 */
+        #infoModal .vote-container {
+            position: absolute;    /* 절대 위치 */
+            
+            /* ▼▼▼ 이 숫자를 바꿔서 위/아래 위치를 잡으세요 ▼▼▼ */
+            bottom: 200px;          /* 바닥에서 45px 올라옴 */
+            
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            margin: 0;
+            z-index: 10;
+        }
+
     </style>
 </head>
 <body>
@@ -320,7 +444,7 @@
 
     <button class="add-btn" onclick="openAddModal()" title="사어 매장">
         <!-- '이미지주소' 부분에 원하시는 이미지 링크를 넣으세요 -->
-        <img src="https://i.imgur.com/4qaFM5W.png" alt="매장">
+        <img src="https://i.imgur.com/Bxhv7bM.png" alt="매장">
     </button>
 
     <!-- 정보 및 투표 모달 -->
