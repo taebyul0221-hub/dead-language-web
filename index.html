@@ -690,6 +690,27 @@
         @keyframes spin {
             100% { transform: rotate(360deg); }
         }
+        /* =========================================
+           [추가] 모달 창 텍스트 드래그 허용
+           ========================================= */
+        #infoModal #modalTitle, 
+        #infoModal #modalDesc {
+            /* 드래그 선택을 허용합니다 */
+            user-select: text !important;       
+            -webkit-user-select: text !important; /* 사파리/크롬 호환 */
+            
+            /* 마우스를 올렸을 때 텍스트 커서( I 모양)로 변경 */
+            cursor: text !important;
+            
+            /* (선택 사항) 드래그할 때 배경색이 겹쳐서 잘 안 보일 경우를 대비해 
+               드래그 시 텍스트 배경색 지정 */
+        }
+        
+        #infoModal #modalTitle::selection,
+        #infoModal #modalDesc::selection {
+            background-color: rgba(255, 255, 255, 0.5); /* 드래그 색상 */
+            color: #000;
+        }
 
     </style>
 </head>
@@ -697,7 +718,7 @@
     <!-- ▼▼▼ [1] 배경음악 오디오 태그 (화면엔 안 보임) ▼▼▼ -->
     <!-- 'bgm.mp3' 부분을 실제 파일 경로로 바꾸세요 -->
     <audio id="bgmAudio" loop autoplay>
-        <source src="bgm.mp3" type="audio/mp3">
+        <source src="https://ready-lavender-85r54zt9sd-bfd2asc2a3.edgeone.dev/말의%20묘역.mp3" type="audio/mp3">
     </audio>
 
     <!-- ▼▼▼ [2] 음악 ON/OFF 버튼 (좌측 상단) ▼▼▼ -->
